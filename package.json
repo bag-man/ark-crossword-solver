@@ -1,0 +1,23 @@
+{
+  "name": "bip39-crossword-solver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "guess.js",
+  "dependencies": {
+    "arkjs": "^0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node guess.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bag-man/bip39-crossword-solver.git"
+  },
+  "author": "bag-man",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bag-man/bip39-crossword-solver/issues"
+  },
+  "homepage": "https://github.com/bag-man/bip39-crossword-solver#readme"
+}
