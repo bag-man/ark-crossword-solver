@@ -3,23 +3,23 @@ const os = require('os')
 const bip39 = require('./bip39-words')
 
 const crossword =
-  [ 'g...e'
-  , 'p.....m'
-  , 'l...l'
-  , 'r.w'
-  , 'r.....e'
-  , 'l.....e'
-  , 'p....o'
-  , 'l....y'
-  , 'i.l'
-  , 'r..t'
-  , 'f.....l'
-  , 'c.....e'
+  [ 'anchor'
+  , 'c.b.n'
+  , '......'
+  , 'fault'
+  , '......'
+  , '..d..'
+  , 'drill'
+  , 'output'
+  , 'sail'
+  , 'age'
+  , 'movie'
+  , '.*'
   ]
 
 const words = crossword.map((word) => { return findPossibilities(word) })
 
-const address = 'APvT4CZ31tMPEByUZ8rTBut2HYFynFvWbr'
+const address = 'ATUt3sr3FkE2Q6cmDRH7s2sv9Nv9ySHLUK'
 const workers = []
 const cpus = os.cpus().length;
 
@@ -30,14 +30,15 @@ const rotate = (array, times) => {
   }
 }
 
+const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
+
 for (let i = 0; i < cpus; i++) {
   const workerWords = words.slice()
 
-  // assumes words[0].length > cpus
   if (i === cpus - 1) {
-    workerWords[0] = workerWords[0].slice(i)
+    workerWords[longest] = workerWords[longest].slice(i)
   } else {
-    workerWords[0] = new Array(workerWords[0][i])
+    workerWords[longest] = new Array(workerWords[longest][i])
   }
 
   workerWords.map(word => rotate(word, i))
