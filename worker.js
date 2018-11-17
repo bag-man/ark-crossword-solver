@@ -13,8 +13,7 @@ process.on('message', (x) => {
     const generatedAddress = arkjs.crypto.getAddress(arkjs.crypto.getKeys(seedPhrase).publicKey)
     if (generatedAddress === x.address) {
       console.log('Seed found: ' + seedPhrase)
-      process.exit()
+      process.send({ end: true })
     }
   }
-  process.exit()
 })

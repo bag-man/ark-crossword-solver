@@ -3,23 +3,23 @@ const os = require('os')
 const bip39 = require('./bip39-words')
 
 const crossword =
-  [ 's..k'
-  , 'p..o.it.'
-  , '.umb'
-  , 'w.i.e'
-  , 'mod.fy'
-  , '.ask'
-  , 's.a.t'
-  , '.os.u.t.'
-  , 'n.ck'
-  , '.eck'
-  , 'spre.d'
-  , 's.ng'
+  [ 'g...e'
+  , 'p.....m'
+  , 'l...l'
+  , 'r.w'
+  , 'r.....e'
+  , 'l.....e'
+  , 'p....o'
+  , 'l....y'
+  , 'i.l'
+  , 'r..t'
+  , 'f.....l'
+  , 'c.....e'
   ]
 
 const words = crossword.map((word) => { return findPossibilities(word) })
 
-const address = 'AN3mtTEfk1qreRbbKup18x1CuxmHhx1P1T'
+const address = 'APvT4CZ31tMPEByUZ8rTBut2HYFynFvWbr'
 const workers = []
 const cpus = os.cpus().length;
 
@@ -56,3 +56,11 @@ function findPossibilities (word) {
   return possibilities
 }
 
+for (let i = 0; i < workers.length; i++) {
+  workers[i].on('message', (x) => {
+    for (let j = 0; j < workers.length; j++) {
+      workers[i].kill()
+    }
+    process.exit()
+  })
+}
