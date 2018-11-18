@@ -2,26 +2,24 @@ const { fork } = require('child_process')
 const os = require('os')
 const bip39 = require('./bip39-words')
 
+const address = 'APvT4CZ31tMPEByUZ8rTBut2HYFynFvWbr'
 const crossword =
-  [ 'anchor'
-  , 'c.b.n'
-  , '......'
-  , 'fault'
-  , '......'
-  , '..d..'
-  , 'drill'
-  , 'output'
-  , 'sail'
-  , 'age'
-  , 'movie'
-  , '.*'
+  [ 'g...e'
+  , 'p.....m'
+  , 'l...l'
+  , 'r.w'
+  , 'r.....e'
+  , 'l.....e'
+  , 'p....o'
+  , 'l....y'
+  , 'i.l'
+  , 'r..t'
+  , 'f.....l'
+  , 'c.....e'
   ]
 
-const words = crossword.map((word) => { return findPossibilities(word) })
-
-const address = 'ATUt3sr3FkE2Q6cmDRH7s2sv9Nv9ySHLUK'
 const workers = []
-const cpus = os.cpus().length;
+const cpus = os.cpus().length
 
 const rotate = (array, times) => {
   while (times--) {
@@ -30,6 +28,18 @@ const rotate = (array, times) => {
   }
 }
 
+const findPossibilities = (word) => {
+  let possibilities = []
+  bip39.forEach((possibleWord) => {
+    if (possibleWord.match(new RegExp('^' + word + '$'))) {
+      possibilities.push(possibleWord)
+    }
+  })
+
+  return possibilities
+}
+
+const words = crossword.map((word) => { return findPossibilities(word) })
 const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
 
 for (let i = 0; i < cpus; i++) {
@@ -46,16 +56,6 @@ for (let i = 0; i < cpus; i++) {
   workers[i].send({ address, workerWords })
 }
 
-function findPossibilities (word) {
-  let possibilities = []
-  bip39.forEach((possibleWord) => {
-    if (possibleWord.match(new RegExp('^' + word + '$'))) {
-      possibilities.push(possibleWord)
-    }
-  })
-
-  return possibilities
-}
 
 for (let i = 0; i < workers.length; i++) {
   workers[i].on('message', (x) => {
