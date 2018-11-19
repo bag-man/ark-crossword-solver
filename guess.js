@@ -42,15 +42,18 @@ const findPossibilities = (word) => {
 
 const words = crossword.map((word) => { return findPossibilities(word) })
 const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
+const chunkSize = Math.floor(words[longest].length / cpus)
+let lastChunk = 0
 
 for (let i = 0; i < cpus; i++) {
   const workerWords = words.slice()
 
   if (i === cpus - 1) {
-    workerWords[longest] = workerWords[longest].slice(i)
+    workerWords[longest] = workerWords[longest].slice(lastChunk)
   } else {
-    workerWords[longest] = new Array(workerWords[longest][i])
+    workerWords[longest] = workerWords[longest].slice(lastChunk, lastChunk + chunkSize)
   }
+  lastChunk = lastChunk + chunkSize
 
   workerWords.map(word => {
     const shift = Math.ceil((word.length / cpus) * (i+1))
