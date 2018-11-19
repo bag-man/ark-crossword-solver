@@ -19,6 +19,7 @@ const crossword =
   , 'c.....e'
   ]
 
+const combinations = []
 const workers = []
 const cpus = os.cpus().length
 
@@ -62,7 +63,15 @@ for (let i = 0; i < cpus; i++) {
 
   workers.push(fork('./worker'))
   workers[i].send({ address, workerWords })
+
+
+  let workerCombinations = workerWords[0].length
+  for (let q = 1; q < workerWords.length; q++) {
+    workerCombinations = Math.pow(workerCombinations, workerWords[q].length)
+  }
+  combinations.push(workerCombinations)
 }
+console.log(combinations)
 
 for (let i = 0; i < workers.length; i++) {
   workers[i].on('message', (x) => {
