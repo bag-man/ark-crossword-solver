@@ -2,6 +2,7 @@ const { fork } = require('child_process')
 const os = require('os')
 const bip39 = require('./bip39-words')
 
+// goose program loyal raw receive leisure potato lonely ill riot federal cabbage
 const address = 'APvT4CZ31tMPEByUZ8rTBut2HYFynFvWbr'
 const crossword =
   [ 'g...e'
@@ -51,7 +52,11 @@ for (let i = 0; i < cpus; i++) {
     workerWords[longest] = new Array(workerWords[longest][i])
   }
 
-  workerWords.map(word => rotate(word, i))
+  workerWords.map(word => {
+    const shift = Math.ceil((word.length / cpus) * (i+1))
+    return rotate(word, shift)
+  })
+
   workers.push(fork('./worker'))
   workers[i].send({ address, workerWords })
 }
