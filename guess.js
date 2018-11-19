@@ -22,13 +22,6 @@ const crossword =
 const workers = []
 const cpus = os.cpus().length
 
-const rotate = (array, times) => {
-  while (times--) {
-    var temp = array.shift()
-    array.push(temp)
-  }
-}
-
 const findPossibilities = (word) => {
   let possibilities = []
   bip39.forEach((possibleWord) => {
@@ -40,10 +33,17 @@ const findPossibilities = (word) => {
   return possibilities
 }
 
+const findNumPossibilities = (words) => {
+  const counts = words.map(word => word.length)
+  return counts.reduce((a, v) => a * v)
+}
+
 const words = crossword.map((word) => { return findPossibilities(word) })
 const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
 const chunkSize = Math.floor(words[longest].length / cpus)
 let lastChunk = 0
+
+console.log('Total Search Space: ', findNumPossibilities(words))
 
 for (let i = 0; i < cpus; i++) {
   const workerWords = words.slice()
@@ -55,11 +55,7 @@ for (let i = 0; i < cpus; i++) {
   }
   lastChunk = lastChunk + chunkSize
 
-  workerWords.map(word => {
-    const shift = Math.ceil((word.length / cpus) * (i+1))
-    return rotate(word, shift)
-  })
-
+  console.log('Worker', i, 'search space: ', findNumPossibilities(workerWords))
   workers.push(fork('./worker'))
   workers[i].send({ address, workerWords })
 }
