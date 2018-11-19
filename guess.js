@@ -61,12 +61,10 @@ for (let i = 0; i < cpus; i++) {
   workers[i].send({ address, workerWords })
 }
 
-
 for (let i = 0; i < workers.length; i++) {
   workers[i].on('message', (x) => {
     for (let j = 0; j < workers.length; j++) {
-      workers[i].kill()
+      workers[j].kill('SIGKILL')
     }
-    process.exit()
   })
 }
