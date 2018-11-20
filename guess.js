@@ -42,20 +42,22 @@ const words = crossword.map((word) => { return findPossibilities(word) })
 const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
 const chunkSize = Math.floor(words[longest].length / cpus)
 let lastChunk = 0
+let remainder = words[longest].length - (chunkSize * 8)
 
-console.log('Total Search Space: ', findNumPossibilities(words))
+// console.log('Total Search Space: ', findNumPossibilities(words))
 
 for (let i = 0; i < cpus; i++) {
   const workerWords = words.slice()
 
-  if (i === cpus - 1) {
-    workerWords[longest] = workerWords[longest].slice(lastChunk)
-  } else {
-    workerWords[longest] = workerWords[longest].slice(lastChunk, lastChunk + chunkSize)
-  }
+  workerWords[longest] = workerWords[longest].slice(lastChunk, lastChunk + chunkSize)
   lastChunk = lastChunk + chunkSize
 
-  console.log('Worker', i, 'search space: ', findNumPossibilities(workerWords))
+  if (remainder) {
+    workerWords[longest].push(words[longest].pop())
+    remainder--
+  }
+
+  // console.log('Worker', i, 'search space: ', findNumPossibilities(workerWords))
   workers.push(fork('./worker'))
   workers[i].send({ address, workerWords })
 }
