@@ -38,6 +38,15 @@ const findNumPossibilities = (words) => {
   return counts.reduce((a, v) => a * v)
 }
 
+const shuffle = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1))
+    let temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+}
+
 const words = crossword.map((word) => { return findPossibilities(word) })
 const longest = words.reduce((p, c, i, a) => a[p].length > c.length ? p : i, 0)
 const chunkSize = Math.floor(words[longest].length / cpus)
@@ -55,6 +64,11 @@ for (let i = 0; i < cpus; i++) {
   if (remainder) {
     workerWords[longest].push(words[longest].pop())
     remainder--
+  }
+
+  // So it can be ran on multiple machines
+  for (let y = 0; y < workerWords.length; y++) {
+    shuffle(workerWords[y])
   }
 
   // console.log('Worker', i, 'search space: ', findNumPossibilities(workerWords))
