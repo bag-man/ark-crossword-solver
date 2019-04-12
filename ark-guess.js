@@ -18,7 +18,6 @@ randomMnemonicSeed(null, async seed => {
     }
   })
 
-
   console.log('address: ', address)
   console.log('seed:    ', seed)
   console.log('balance: ', balance)
