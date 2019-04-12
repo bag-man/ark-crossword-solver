@@ -4,7 +4,10 @@
   "description": "",
   "main": "guess.js",
   "dependencies": {
-    "arkjs": "^0.2.1"
+    "arkjs": "^0.2.1",
+    "axios": "^0.18.0",
+    "bip39-seeder": "^1.0.0",
+    "bitcoinjs-lib": "^5.0.2"
   },
   "devDependencies": {},
   "scripts": {
