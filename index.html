@@ -1,4 +1,70 @@
-<head> 
-  <script type="text/javascript" src="index.js"></script>
-</head> 
+<html>
+  <meta charset="UTF-8">
+  <title>Improbability is security</title>
+  <link rel='icon' type='image/png' href='https://raw.githubusercontent.com/bag-man/nodeup/master/public/assets/imgs/favicon.ico'/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="lib.js"></script>
+  <script>
+    $(document).ready(() => {
+      $('.btn').click(async () => {
+        const { address, secret } = Lib.guess()
 
+        const res = await axios({
+          method: 'GET',
+          url: 'https://insight.bitpay.com/api/addr/' + address,
+        })
+
+        const balance = res.data.balance
+        const active = !!res.data.totalReceived
+        console.log({ address, secret, balance, active })
+
+        $('#address').text(address)
+        $('#secret').text(secret)
+        $('#balance').text(balance + ' BTC')
+        if (active) {
+          $('body').addClass('winner')
+          $('body').removeClass('money')
+          $('#info').text('Holy shit! The odds were one in a billion, but you found a wallets that has been active!!!')
+          $('button').remove()
+        } else {
+          $('#info').text('No, you aren\'t a millionaire now. I\'m really sorry.')
+        }
+      })
+    })
+  </script>
+  <style> 
+    @keyframes argh-my-eyes {
+       0%   { background-color: #0ff; }
+       49%  { background-color: #f0f; }
+       50%  { background-color: #0f0; }
+       99%  { background-color: #f00; }
+       100% { background-color: #ff0; }
+     }
+     .winner {
+       -webkit-animation: argh-my-eyes 0.3s infinite;
+       -moz-animation:    argh-my-eyes 0.3s infinite;
+       animation: argh-my-eyes 0.3s infinite;
+     }
+     #guess {
+       background-color: rgba(255, 255, 255, 0.7);
+       padding: 5%;
+       margin: 20%;
+       text-align: center;
+     }
+     .money {
+       background-image: url("https://i.giphy.com/media/12Eo7WogCAoj84/giphy.webp");
+       background-size: 400px;
+     }
+  </style>
+  <body class="money">
+    <div id="guess">
+      <p id="secret">&nbsp;</p>
+      <p id="address">&nbsp;</p>
+      <p id="balance">&nbsp;</p>
+      <p id="info">Click guess to try and become really really rich</p>
+      <button class="btn">guess</button>
+    </div>
+  </body>
+</html>

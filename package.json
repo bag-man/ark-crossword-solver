@@ -4,17 +4,17 @@
   "description": "",
   "main": "guess.js",
   "dependencies": {
-    "@zeit/ncc": "^0.17.4",
     "arkjs": "^0.2.1",
     "axios": "^0.18.0",
-    "axios-jsonp": "^1.0.2",
     "bip39-seeder": "^1.0.0",
     "bitcoinjs-lib": "^5.0.2",
-    "browserify": "^16.2.3"
+    "browserify": "^16.2.3",
+    "minify": "^4.1.1"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node guess.js"
+    "start": "node guess.js",
+    "build": "browserify --standalone Lib bitcoin-guess.js > lib.js"
   },
   "repository": {
     "type": "git",
