@@ -104,7 +104,7 @@ for (let i = 0; i < workers.length; i++) {
     if (x.time) {
       counter++
       if ((counter % 1000) === 0) {
-        temp = exec(`sensors | grep Physical | awk '{printf "%s+",$4}'`, (err, tempC, stderr) => {
+        temp = exec(`sensors | awk '/Physical|Package/ {printf "%s+",$4}'`, (err, tempC, stderr) => {
           const [seconds, nanos] = process.hrtime(startTime)
           const speed = 1000 / (seconds + Math.round(nanos / 1000000) / 1000)
           const cpuFreq = os.cpus().reduce((r, c) => r + c.speed, 0) / cpus
