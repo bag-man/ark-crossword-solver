@@ -1,9 +1,14 @@
 const { fork } = require('child_process')
 const os = require('os')
 const bip39 = require('./bip39-words')
+const spawn = require('child_process').spawn
 
-// goose program loyal raw receive leisure potato lonely ill riot federal cabbage
+
+// Set the address of the wallet
 const address = 'APvT4CZ31tMPEByUZ8rTBut2HYFynFvWbr'
+// goose program loyal raw receive leisure potato lonely ill riot federal cabbage
+
+// Set the missing values of the passphrase
 const crossword =
   [ 'g...e'
   , 'p.....m'
@@ -18,6 +23,12 @@ const crossword =
   , 'f.....l'
   , 'c.....e'
   ]
+
+// Set to true for performance and progress metrics
+const verbose = true
+
+// Set to true to shuffle word lists for use on multiple machines
+const shuffle = true
 
 const workers = []
 const cpus = os.cpus().length
@@ -38,7 +49,7 @@ const findNumPossibilities = (words) => {
   return counts.reduce((a, v) => a * v)
 }
 
-const shuffle = (array) => {
+const shuffleWords = (array) => {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1))
     let temp = array[i]
@@ -53,7 +64,11 @@ const chunkSize = Math.floor(words[longest].length / cpus)
 let lastChunk = 0
 let remainder = words[longest].length - (chunkSize * 8)
 
-// console.log('Total Search Space: ', findNumPossibilities(words))
+const totalSearchSpace = findNumPossibilities(words)
+console.log(`Total search space: ${totalSearchSpace}`)
+
+const totalStartTime = process.hrtime()
+let startTime = process.hrtime()
 
 for (let i = 0; i < cpus; i++) {
   const workerWords = words.slice()
@@ -66,20 +81,40 @@ for (let i = 0; i < cpus; i++) {
     remainder--
   }
 
-  // So it can be ran on multiple machines
-  for (let y = 0; y < workerWords.length; y++) {
-    shuffle(workerWords[y])
+  if (shuffle) {
+    for (let y = 0; y < workerWords.length; y++) {
+      shuffleWords(workerWords[y])
+    }
   }
 
-  // console.log('Worker', i, 'search space: ', findNumPossibilities(workerWords))
   workers.push(fork('./worker'))
-  workers[i].send({ address, workerWords })
+  workers[i].send({ address, workerWords, verbose, totalStartTime })
 }
+
+let counter = 0
 
 for (let i = 0; i < workers.length; i++) {
   workers[i].on('message', (x) => {
-    for (let j = 0; j < workers.length; j++) {
-      workers[j].kill('SIGKILL')
+    if (x.end) {
+      for (let j = 0; j < workers.length; j++) {
+        workers[j].kill('SIGKILL')
+      }
+    }
+
+    if (x.time) {
+      counter++
+      if ((counter % 1000) === 0) {
+        temp = spawn('cat', ['/sys/class/thermal/thermal_zone0/temp'])
+        temp.stdout.on('data', (temperature) =>  {
+          const tempC = temperature / 1000
+          const [seconds, nanos] = process.hrtime(startTime)
+          const speed = 1000 / (seconds + Math.round(nanos / 1000000) / 1000)
+          const cpuFreq = os.cpus().reduce((r, c) => r + c.speed, 0) / cpus
+          const percentage = Math.round((counter / totalSearchSpace) * 100)
+          console.log(`${counter}/${totalSearchSpace} (${percentage}%) ... ${Math.round(speed)}/s ... ${Math.round(cpuFreq)} Mhz ... ${tempC}`)
+          startTime = process.hrtime()
+        })
+      }
     }
   })
 }
