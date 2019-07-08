@@ -1,7 +1,7 @@
 const { fork } = require('child_process')
 const os = require('os')
 const bip39 = require('./bip39-words')
-const spawn = require('child_process').spawn
+const exec = require('child_process').exec
 
 
 // Set the address of the wallet
@@ -24,11 +24,11 @@ const crossword =
   , 'c.....e'
   ]
 
-// Set to true for performance and progress metrics
+// Set to true for performance and progress metrics. Depends on `sensors` being installed.
 const verbose = true
 
 // Set to true to shuffle word lists for use on multiple machines
-const shuffle = false
+const shuffle = true
 
 const workers = []
 const cpus = os.cpus().length
@@ -104,14 +104,12 @@ for (let i = 0; i < workers.length; i++) {
     if (x.time) {
       counter++
       if ((counter % 1000) === 0) {
-        temp = spawn('cat', ['/sys/class/thermal/thermal_zone9/temp'])
-        temp.stdout.on('data', (temperature) =>  {
-          const tempC = temperature / 1000
+        temp = exec(`sensors | grep Physical | awk '{printf "%s+",$4}'`, (err, tempC, stderr) => {
           const [seconds, nanos] = process.hrtime(startTime)
           const speed = 1000 / (seconds + Math.round(nanos / 1000000) / 1000)
           const cpuFreq = os.cpus().reduce((r, c) => r + c.speed, 0) / cpus
           const percentage = Math.round((counter / totalSearchSpace) * 100)
-          console.log(`${counter}/${totalSearchSpace} (${percentage}%) ... ${Math.round(speed)}/s ... ${Math.round(cpuFreq)} Mhz ... ${tempC}°C`)
+          console.log(`${counter}/${totalSearchSpace} (${percentage}%) ... ${Math.round(speed)}/s ... ${Math.round(cpuFreq)} Mhz ... ${tempC}`)
           startTime = process.hrtime()
         })
       }
