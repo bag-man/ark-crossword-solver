@@ -28,7 +28,7 @@ const crossword =
 const verbose = true
 
 // Set to true to shuffle word lists for use on multiple machines
-const shuffle = true
+const shuffle = false
 
 const workers = []
 const cpus = os.cpus().length
@@ -104,14 +104,14 @@ for (let i = 0; i < workers.length; i++) {
     if (x.time) {
       counter++
       if ((counter % 1000) === 0) {
-        temp = spawn('cat', ['/sys/class/thermal/thermal_zone0/temp'])
+        temp = spawn('cat', ['/sys/class/thermal/thermal_zone9/temp'])
         temp.stdout.on('data', (temperature) =>  {
           const tempC = temperature / 1000
           const [seconds, nanos] = process.hrtime(startTime)
           const speed = 1000 / (seconds + Math.round(nanos / 1000000) / 1000)
           const cpuFreq = os.cpus().reduce((r, c) => r + c.speed, 0) / cpus
           const percentage = Math.round((counter / totalSearchSpace) * 100)
-          console.log(`${counter}/${totalSearchSpace} (${percentage}%) ... ${Math.round(speed)}/s ... ${Math.round(cpuFreq)} Mhz ... ${tempC}`)
+          console.log(`${counter}/${totalSearchSpace} (${percentage}%) ... ${Math.round(speed)}/s ... ${Math.round(cpuFreq)} Mhz ... ${tempC}°C`)
           startTime = process.hrtime()
         })
       }
